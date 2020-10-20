@@ -7,7 +7,8 @@ import java.nio.file.Paths
 data class Credentials(val user: String, val password: String)
 data class BSH(val ip: String, val port: String, val clientCertPassword: String)
 data class Influx(val user: String, val password: String, val database: String, val url: String)
-data class Config(val bsh: BSH, val influx: Influx)
+data class SmartHome(val interval: Long)
+data class Config(val bsh: BSH, val influx: Influx, val smarthome: SmartHome)
 
 object ConfigHelper {
 

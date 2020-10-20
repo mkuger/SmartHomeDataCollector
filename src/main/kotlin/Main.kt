@@ -2,6 +2,7 @@ import bsh.Client
 import bsh.EnrichedDevice
 import bsh.FuelConfig.configFuel
 import influxdb.InfluxClient
+import smarthome.ConfigHelper
 import smarthome.convertBoschSmartHomeToInflux
 
 fun main(args: Array<String>) {
@@ -16,6 +17,6 @@ fun main(args: Array<String>) {
             .flatten()
 
         InfluxClient.push(points)
-        Thread.sleep(1000 * 60)
+        Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
 }
