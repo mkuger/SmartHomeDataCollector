@@ -17,6 +17,7 @@ fun main(args: Array<String>) {
             .flatten()
 
         InfluxClient.push(points)
+        println("${points.size} points sent")
         Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
 }
