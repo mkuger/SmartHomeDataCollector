@@ -1,26 +1,18 @@
 package influxdb
 
-import org.influxdb.BatchOptions
-import org.influxdb.InfluxDB
-import org.influxdb.InfluxDBFactory
-import org.influxdb.dto.BatchPoints
-import org.influxdb.dto.Point
+import com.influxdb.client.InfluxDBClientFactory
+import com.influxdb.client.write.Point
 import smarthome.ConfigHelper
 
 object InfluxClient {
+    private val config = ConfigHelper.config.influx
 
     fun push(points: List<Point>) {
-        val config = ConfigHelper.config.influx
-        val influxDB: InfluxDB =
-            InfluxDBFactory.connect(config.url, config.user, config.password)
-        influxDB.setDatabase(config.database)
-        influxDB.enableBatch(BatchOptions.DEFAULTS)
-        val batchPoints = BatchPoints
-            .database(config.database)
-            .build()
-        points.forEach { batchPoints.point(it) }
-        println(batchPoints.lineProtocol())
-        influxDB.write(batchPoints)
-        influxDB.close()
+        val influxDBClient = InfluxDBClientFactory
+            .create(config.url, config.token.toCharArray(), config.org, config.bucket)
+
+        val writeApi = influxDBClient.writeApi
+        writeApi.writePoints(points)
+        influxDBClient.close()
     }
 }
