@@ -1,26 +1,35 @@
-import bsh.Client
+import bsh.DeviceRegistry
 import bsh.EnrichedDevice
-import bsh.FuelConfig.configFuel
+import bsh.client.Client
+import bsh.client.FuelConfig.configFuel
+import bsh.client.LongPollingClient
 import com.influxdb.client.domain.WritePrecision
-import influxdb.InfluxClient
 import smarthome.ConfigHelper
 import smarthome.convertBoschSmartHomeToInflux
 
 fun main(args: Array<String>) {
+    configFuel()
+    longpolling()
     while (true) {
-        configFuel()
         val now = System.currentTimeMillis()
-        val points = Client.devices()
-            .map { d ->
-                val services = Client.servicesByDevice(d.id)
-                EnrichedDevice(d, services)
-            }
+
+        DeviceRegistry.devices = Client.devices()
+
+        val points = DeviceRegistry.devices.map { d ->
+            val services = Client.servicesByDevice(d.id)
+            EnrichedDevice(d, services)
+        }
             .mapNotNull { d -> convertBoschSmartHomeToInflux(d) }
             .flatten()
-            .map{p -> p.time(now, WritePrecision.S)}
+            .map { p -> p.time(now, WritePrecision.S) }
 
-        InfluxClient.push(points)
+        //InfluxClient.push(points)
         println("${points.size} points sent")
         Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
+}
+
+fun longpolling() {
+    LongPollingClient.subscribe()
+    LongPollingClient.startPolling()
 }

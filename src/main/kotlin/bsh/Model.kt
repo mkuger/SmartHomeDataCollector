@@ -74,3 +74,4 @@ class SoftwareUpdateState : ServiceState()
 class RemoteAccessState : ServiceState()
 class RemotePushNotificationState : ServiceState()
 class ArmDisarmPushNotificationState : ServiceState()
+

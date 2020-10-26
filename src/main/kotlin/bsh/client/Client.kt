@@ -1,5 +1,8 @@
-package bsh
+package bsh.client
 
+import bsh.Device
+import bsh.Room
+import bsh.Service
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -35,37 +38,38 @@ object FuelConfig {
             true
         }
         FuelManager.instance.keystore = keystore
-        FuelManager.instance.basePath = "https://${config.ip}:${config.port}/smarthome"
+        FuelManager.instance.basePath = "https://${config.ip}:${config.port}"
     }
 }
 
 object Client {
+
     private val mapper = ObjectMapper().registerModule(KotlinModule())
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun rooms(): Array<Room> {
-        val url = "/rooms"
+        val url = "/smarthome/rooms"
         val request = Fuel.get(url)
             .responseObject<Array<Room>>(mapper)
         return request.third.get()
     }
 
     fun devices(): Array<Device> {
-        val url = "/devices"
+        val url = "/smarthome/devices"
         val request = Fuel.get(url)
             .responseObject<Array<Device>>(mapper)
         return request.third.get()
     }
 
     fun services(): Array<Service> {
-        val url = "/services"
+        val url = "/smarthome/services"
         val request = Fuel.get(url)
             .responseObject<Array<Service>>()
         return request.third.get()
     }
 
     fun servicesByDevice(device: String): Array<Service> {
-        val url = "/devices/${device}/services"
+        val url = "/smarthome/devices/${device}/services"
         val request = Fuel.get(url)
             .responseObject<Array<Service>>()
         return request.third.get()
