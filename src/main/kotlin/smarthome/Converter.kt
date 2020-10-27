@@ -37,6 +37,7 @@ fun convertBoschSmartHomeToInflux(device: EnrichedDevice): List<Point>? {
             }
         }
     }
+    result.map { p -> p.addTag("room", device.device.roomId) }
     return try {
         result
     } catch (ex: IllegalArgumentException) {

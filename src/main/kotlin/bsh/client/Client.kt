@@ -33,12 +33,16 @@ object FuelConfig {
         val trustManagers: Array<TrustManager> = trustManagerFactory.trustManagers
         context.init(keyManagers, trustManagers, null)
 
-        FuelManager.instance.socketFactory = context.socketFactory
-        FuelManager.instance.hostnameVerifier = HostnameVerifier { _: String, _: SSLSession ->
-            true
+        FuelManager.instance.apply {
+            socketFactory = context.socketFactory
+            hostnameVerifier = HostnameVerifier { _: String, _: SSLSession ->
+                true
+            }
+            this.keystore = keystore
+            basePath = "https://${config.ip}:${config.port}"
+            // 40 Seconds. According to docs, BSH uses 30s for long polling
+            timeoutReadInMillisecond = 1000 * 40
         }
-        FuelManager.instance.keystore = keystore
-        FuelManager.instance.basePath = "https://${config.ip}:${config.port}"
     }
 }
 

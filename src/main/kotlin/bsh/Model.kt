@@ -3,7 +3,7 @@ package bsh
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 
-data class EnrichedDevice(val device: Device, val services: Array<Service>)
+data class EnrichedDevice(val device: Device, val services: Collection<Service>)
 
 data class Room(var id: String = "", var name: String = "")
 
