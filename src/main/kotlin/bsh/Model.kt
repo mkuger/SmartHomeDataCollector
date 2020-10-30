@@ -42,9 +42,9 @@ data class Service(var id: String, var state: ServiceState?, var deviceId: Strin
     JsonSubTypes.Type(value = RemotePushNotificationState::class, name = "remotePushNotificationState"),
     JsonSubTypes.Type(value = ArmDisarmPushNotificationState::class, name = "armDisarmPushNotificationState"),
 )
-abstract class ServiceState {}
+abstract class ServiceState
 
-abstract class MeasuredServiceState() : ServiceState()
+abstract class MeasuredServiceState : ServiceState()
 
 data class ValveTappetState(var position: Int) : MeasuredServiceState()
 
