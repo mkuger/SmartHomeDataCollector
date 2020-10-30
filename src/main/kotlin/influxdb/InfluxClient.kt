@@ -15,4 +15,13 @@ object InfluxClient {
         writeApi.writePoints(points)
         influxDBClient.close()
     }
+
+    fun push(point: Point) {
+        val influxDBClient = InfluxDBClientFactory
+            .create(config.url, config.token.toCharArray(), config.org, config.bucket)
+
+        val writeApi = influxDBClient.writeApi
+        writeApi.writePoint(point)
+        influxDBClient.close()
+    }
 }

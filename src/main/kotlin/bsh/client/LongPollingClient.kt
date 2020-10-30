@@ -6,6 +6,8 @@ import bsh.jsonrpc.UnsubscribeResponse
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.jackson.responseObject
+import kotlinx.coroutines.runBlocking
+import smarthome.actor.ActorRegistry
 import kotlin.concurrent.thread
 
 object LongPollingClient {
@@ -85,9 +87,16 @@ object LongPollingClient {
                                 "]"
                     ).responseObject<Array<LongPollingResponse>>()
                 val response = request.third.get()
-                response.forEach {
-                    eventHandlers.forEach { handler -> handler.receive(it) }
-                    println(it)
+                runBlocking {
+                    response.forEach {
+                        eventHandlers.forEach { handler -> handler.receive(it) }
+                        it.result?.forEach { service ->
+                            ActorRegistry.actors.forEach { actor ->
+                                actor.send(service)
+                            }
+                        }
+                        println("Results: ${it.result?.size}")
+                    }
                 }
             }
         }

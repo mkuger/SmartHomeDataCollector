@@ -6,7 +6,10 @@ import bsh.client.Client
 import bsh.client.FuelConfig.configFuel
 import bsh.client.LongPollingClient
 import com.influxdb.client.domain.WritePrecision
+import kotlinx.coroutines.runBlocking
 import smarthome.ConfigHelper
+import smarthome.actor.ActorRegistry
+import smarthome.actor.shutterActor
 import smarthome.convertBoschSmartHomeToInflux
 
 fun main(args: Array<String>) {
@@ -30,6 +33,7 @@ fun main(args: Array<String>) {
 
         //InfluxClient.push(points)
         println("${points.size} points sent")
+        setupActor()
         Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
 }
@@ -37,4 +41,12 @@ fun main(args: Array<String>) {
 fun longpolling() {
     LongPollingClient.subscribe()
     LongPollingClient.startPolling()
+}
+
+fun setupActor() = runBlocking {
+    DeviceRegistry.devices
+        .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
+        .forEach { d ->
+            ActorRegistry.add(shutterActor(d))
+        }
 }

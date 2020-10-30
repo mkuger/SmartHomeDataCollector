@@ -21,6 +21,7 @@ application {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0")
     implementation("com.github.kittinunf.fuel:fuel:2.3.0")
     implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.3")

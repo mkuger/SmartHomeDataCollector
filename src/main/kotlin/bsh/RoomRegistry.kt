@@ -11,4 +11,8 @@ object RoomRegistry {
 
     var lastUpdated: Instant = Instant.MIN
         private set
+
+    fun byId(id: String): Room {
+        return rooms.first { room -> room.id == id }
+    }
 }
