@@ -28,5 +28,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: distributions
-        path: build/distributions/
+        path: |
+          build/distributions/*.zip
+          build/distributions/*.tar
         
