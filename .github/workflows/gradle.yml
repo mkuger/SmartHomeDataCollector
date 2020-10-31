@@ -30,5 +30,4 @@ jobs:
         name: distributions
         path: |
           build/distributions/*.zip
-          build/distributions/*.tar
         
