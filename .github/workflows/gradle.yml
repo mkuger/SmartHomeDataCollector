@@ -24,3 +24,10 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: distributions
+        path: |
+          build/distribution
+        
