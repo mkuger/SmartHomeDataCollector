@@ -4,12 +4,10 @@ import bsh.Device
 import bsh.RoomRegistry
 import bsh.Service
 import bsh.ShutterContactState
-import com.influxdb.client.domain.WritePrecision
-import com.influxdb.client.write.Point
-import influxdb.InfluxClient
+import grafana.Annotation
+import grafana.GrafanaClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.actor
-import java.time.Duration
 import java.time.Instant
 
 fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
@@ -35,19 +33,12 @@ fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
                     continue
                 }
                 val now = Instant.now()
-                val duration = Duration.between(timestamp, now)
-                    .seconds
-                val p = Point("ventilation")
-                    .addTag("room", RoomRegistry.byId(device.roomId).name)
-                    .addTag("device", device.name)
-                    .addTag("from", timestamp.epochSecond.toString())
-                    .addTag("until", now.epochSecond.toString())
-                    .addField("duration", duration)
-                    .time(now, WritePrecision.S)
-                println("Sending to influx. Duration: $duration")
-                InfluxClient.push(p)
+                val tags = listOf(RoomRegistry.byId(device.roomId).name, device.name, "smart-home", "ventilation")
+                val annotation = Annotation(timestamp.toEpochMilli(), now.toEpochMilli(), tags, "ventilation")
+                GrafanaClient.addAnnotation(annotation)
+                println("Sending to Grafana")
                 currentState = shutterState
-                timestamp = Instant.now()
+                timestamp = now
             }
         }
     }
