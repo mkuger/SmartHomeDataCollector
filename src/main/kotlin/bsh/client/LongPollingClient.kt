@@ -30,7 +30,7 @@ object LongPollingClient {
 
     fun subscribe() {
         val url = "/remote/json-rpc"
-        val request = Fuel.post(url)
+        val request = Client.fuelManager.post(url)
             .jsonBody(
                 "[\n" +
                         "    {\n" +
@@ -51,7 +51,7 @@ object LongPollingClient {
             return
         }
         val url = "/remote/json-rpc"
-        val request = Fuel.post(url)
+        val request = Client.fuelManager.post(url)
             .jsonBody(
                 "[\n" +
                         "    {\n" +
@@ -76,7 +76,7 @@ object LongPollingClient {
                 }
                 println("Polling...")
                 val url = "/remote/json-rpc"
-                val request = Fuel.post(url)
+                val request = Client.fuelManager.post(url)
                     .jsonBody(
                         "[\n" +
                                 "    {\n" +

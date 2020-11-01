@@ -1,12 +1,9 @@
 package bsh.client
 
+import GlobalConfig
 import bsh.Device
 import bsh.Room
 import bsh.Service
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.FuelManager
 import com.github.kittinunf.fuel.jackson.responseObject
 import smarthome.ConfigHelper
@@ -14,8 +11,11 @@ import java.nio.file.Files
 import java.security.KeyStore
 import javax.net.ssl.*
 
-object FuelConfig {
-    fun configFuel() {
+object Client {
+
+    val fuelManager: FuelManager
+
+    init {
         val config = ConfigHelper.config.bsh
         val truststore = KeyStore.getInstance("JKS")
         truststore.load(javaClass.classLoader.getResourceAsStream("bsh.jks"), "foobar".toCharArray())
@@ -33,7 +33,7 @@ object FuelConfig {
         val trustManagers: Array<TrustManager> = trustManagerFactory.trustManagers
         context.init(keyManagers, trustManagers, null)
 
-        FuelManager.instance.apply {
+        fuelManager = FuelManager().apply {
             socketFactory = context.socketFactory
             hostnameVerifier = HostnameVerifier { _: String, _: SSLSession ->
                 true
@@ -44,38 +44,32 @@ object FuelConfig {
             timeoutReadInMillisecond = 1000 * 40
         }
     }
-}
-
-object Client {
-
-    private val mapper = ObjectMapper().registerModule(KotlinModule())
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun rooms(): Array<Room> {
         val url = "/smarthome/rooms"
-        val request = Fuel.get(url)
-            .responseObject<Array<Room>>(mapper)
+        val request = fuelManager.get(url)
+            .responseObject<Array<Room>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun devices(): Array<Device> {
         val url = "/smarthome/devices"
-        val request = Fuel.get(url)
-            .responseObject<Array<Device>>(mapper)
+        val request = fuelManager.get(url)
+            .responseObject<Array<Device>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun services(): Array<Service> {
         val url = "/smarthome/services"
-        val request = Fuel.get(url)
-            .responseObject<Array<Service>>()
+        val request = fuelManager.get(url)
+            .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun servicesByDevice(device: String): Array<Service> {
         val url = "/smarthome/devices/${device}/services"
-        val request = Fuel.get(url)
-            .responseObject<Array<Service>>()
+        val request = fuelManager.get(url)
+            .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 }
