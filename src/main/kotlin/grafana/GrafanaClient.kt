@@ -24,6 +24,6 @@ object GrafanaClient {
             .header("Authorization" to "Bearer ${ConfigHelper.config.grafana.apiKey}")
             .body(mapper.writeValueAsString(annotation))
             .responseString()
-        println("Grafana response: $response")
+        println("Grafana response: ${response.second.statusCode} - ${response.second.responseMessage}")
     }
 }
