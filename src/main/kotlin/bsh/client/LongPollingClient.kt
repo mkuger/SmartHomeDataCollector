@@ -3,14 +3,16 @@ package bsh.client
 import bsh.jsonrpc.LongPollingResponse
 import bsh.jsonrpc.SubscribeResponse
 import bsh.jsonrpc.UnsubscribeResponse
-import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.jackson.responseObject
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import smarthome.actor.ActorRegistry
 import kotlin.concurrent.thread
 
 object LongPollingClient {
+
+    private val log = KotlinLogging.logger {}
 
     interface EventHandler {
         fun receive(response: LongPollingResponse)
@@ -22,7 +24,7 @@ object LongPollingClient {
     init {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
-                println("Received shutdown hook. Unsubscribing from long polling.")
+                log.info("Received shutdown hook. Unsubscribing from long polling.")
                 longPollingUnsubscribe();
             }
         })
@@ -42,12 +44,12 @@ object LongPollingClient {
             )
             .responseObject<Array<SubscribeResponse>>()
         longPollingId = request.third.get()[0].result
-        println("Subscribed. Id: ${longPollingId}")
+        log.info("Subscribed. Id: ${longPollingId}")
     }
 
     fun longPollingUnsubscribe() {
         if (longPollingId == null) {
-            println("Skipping unsubscribe, currently not subscribed")
+            log.warn("Skipping unsubscribe, currently not subscribed")
             return
         }
         val url = "/remote/json-rpc"
@@ -70,11 +72,11 @@ object LongPollingClient {
         thread(start = true, isDaemon = true) {
             while (true) {
                 if (longPollingId == null) {
-                    println("Long polling ID is null. Skipping...")
+                    log.warn("Long polling ID is null. Skipping...")
                     Thread.sleep(1000L)
                     continue
                 }
-                println("Polling...")
+                log.info("Polling...")
                 val url = "/remote/json-rpc"
                 val request = Client.fuelManager.post(url)
                     .jsonBody(
@@ -95,7 +97,7 @@ object LongPollingClient {
                                 actor.send(service)
                             }
                         }
-                        println("Results: ${it.result?.size}")
+                        log.info("Results: ${it.result?.size}")
                     }
                 }
             }

@@ -8,10 +8,12 @@ import grafana.Annotation
 import grafana.GrafanaClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.actor
+import mu.KotlinLogging
 import java.time.Instant
 
 fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
-    println("ShutterActor created: ${device.name}")
+    val log = KotlinLogging.logger {}
+    log.info("ShutterActor created: ${device.name}")
     var currentState = ""
     var timestamp = Instant.MIN
 
@@ -20,7 +22,7 @@ fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
             continue
         if (msg.deviceId != device.id)
             continue
-        println("Message received: $msg")
+        log.info("Message received: $msg")
         val shutterState = (msg.state as ShutterContactState).value
         when (shutterState) {
             "OPEN" -> {
@@ -29,14 +31,14 @@ fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
             }
             "CLOSED" -> {
                 if (currentState != "OPEN") {
-                    println("Skipping. Was not open before.")
+                    log.info("Skipping. Was not open before.")
                     continue
                 }
                 val now = Instant.now()
                 val tags = listOf(RoomRegistry.byId(device.roomId).name, device.name, "smart-home", "ventilation")
                 val annotation = Annotation(timestamp.toEpochMilli(), now.toEpochMilli(), tags, "ventilation")
                 GrafanaClient.addAnnotation(annotation)
-                println("Sending to Grafana")
+                log.debug("Sending event to Grafana")
                 currentState = shutterState
                 timestamp = now
             }

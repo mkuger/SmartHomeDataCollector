@@ -28,4 +28,6 @@ dependencies {
     implementation("com.influxdb:influxdb-client-java:1.12.0")
     implementation("com.sksamuel.hoplite:hoplite-core:1.3.7")
     implementation("com.sksamuel.hoplite:hoplite-yaml:1.3.7")
+    implementation("io.github.microutils:kotlin-logging:1.5.9")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
 }

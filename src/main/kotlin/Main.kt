@@ -7,6 +7,7 @@ import bsh.client.LongPollingClient
 import com.influxdb.client.domain.WritePrecision
 import influxdb.InfluxClient
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import smarthome.ConfigHelper
 import smarthome.actor.ActorRegistry
 import smarthome.actor.shutterActor
@@ -14,6 +15,9 @@ import smarthome.convertBoschSmartHomeToInflux
 import java.time.Instant
 
 fun main(args: Array<String>) {
+
+    val log = KotlinLogging.logger {}
+
     longpolling()
     while (true) {
         val now = Instant.now()
@@ -32,7 +36,7 @@ fun main(args: Array<String>) {
             .map { p -> p.time(now, WritePrecision.S) }
 
         InfluxClient.push(points)
-        println("${points.size} points sent")
+        log.info("${points.size} points sent")
         setupActor()
         Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
