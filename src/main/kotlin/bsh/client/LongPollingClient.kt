@@ -25,7 +25,7 @@ object LongPollingClient {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
                 log.info("Received shutdown hook. Unsubscribing from long polling.")
-                longPollingUnsubscribe();
+                longPollingUnsubscribe()
             }
         })
     }
@@ -76,7 +76,6 @@ object LongPollingClient {
                     Thread.sleep(1000L)
                     continue
                 }
-                log.info("Polling...")
                 val url = "/remote/json-rpc"
                 val request = Client.fuelManager.post(url)
                     .jsonBody(
@@ -97,7 +96,6 @@ object LongPollingClient {
                                 actor.send(service)
                             }
                         }
-                        log.info("Results: ${it.result?.size}")
                     }
                 }
             }
