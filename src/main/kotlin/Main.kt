@@ -19,6 +19,7 @@ fun main(args: Array<String>) {
     val log = KotlinLogging.logger {}
 
     longpolling()
+    setupActor()
     while (true) {
         val now = Instant.now()
 
@@ -37,7 +38,6 @@ fun main(args: Array<String>) {
 
         InfluxClient.push(points)
         log.info("${points.size} points sent")
-        setupActor()
         Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
     }
 }
