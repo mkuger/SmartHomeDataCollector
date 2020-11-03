@@ -17,6 +17,11 @@ import java.time.Instant
 fun main(args: Array<String>) {
 
     val log = KotlinLogging.logger {}
+    log.info("Starting Smart Home Data Collector")
+
+    RoomRegistry.rooms = Client.rooms()
+    DeviceRegistry.devices = Client.devices()
+    ServiceRegistry.services = Client.services()
 
     longpolling()
     setupActor()
