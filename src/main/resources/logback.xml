@@ -1,6 +1,7 @@
 <configuration>
     <property name="LOG_DIR" value="/var/log/smart-home"/>
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <charset>UTF-8</charset>
         <file>${LOG_DIR}/smart-home.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
