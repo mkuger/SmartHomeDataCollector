@@ -23,8 +23,7 @@ fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
         if (msg.deviceId != device.id)
             continue
         log.info("Message received: $msg")
-        val shutterState = (msg.state as ShutterContactState).value
-        when (shutterState) {
+        when (val shutterState = (msg.state as ShutterContactState).value) {
             "OPEN" -> {
                 currentState = shutterState
                 timestamp = Instant.now()
