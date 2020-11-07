@@ -13,13 +13,9 @@ import kotlin.concurrent.thread
 object LongPollingClient {
 
     private val log = KotlinLogging.logger {}
-
-    interface EventHandler {
-        fun receive(response: LongPollingResponse)
-    }
+    private const val url = "/remote/json-rpc"
 
     private var longPollingId: String? = null
-    val eventHandlers: MutableList<EventHandler> = mutableListOf()
 
     init {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
@@ -31,7 +27,6 @@ object LongPollingClient {
     }
 
     fun subscribe() {
-        val url = "/remote/json-rpc"
         val request = Client.fuelManager.post(url)
             .jsonBody(
                 "[\n" +
@@ -52,8 +47,7 @@ object LongPollingClient {
             log.warn("Skipping unsubscribe, currently not subscribed")
             return
         }
-        val url = "/remote/json-rpc"
-        val request = Client.fuelManager.post(url)
+        val response = Client.fuelManager.post(url)
             .jsonBody(
                 "[\n" +
                         "    {\n" +
@@ -64,39 +58,41 @@ object LongPollingClient {
                         "]"
             )
             .responseObject<Array<UnsubscribeResponse>>()
-        request.third.get()[0]
+        log.info("Unsubscribe response: ${response.second.statusCode} : ${response.second.responseMessage}")
         longPollingId = null
     }
 
     fun startPolling() {
         thread(start = true, isDaemon = true) {
             while (true) {
-                if (longPollingId == null) {
-                    log.warn("Long polling ID is null. Skipping...")
-                    Thread.sleep(1000L)
-                    continue
-                }
-                val url = "/remote/json-rpc"
-                val request = Client.fuelManager.post(url)
-                    .jsonBody(
-                        "[\n" +
-                                "    {\n" +
-                                "        \"jsonrpc\":\"2.0\",\n" +
-                                "        \"method\":\"RE/longPoll\",\n" +
-                                "        \"params\": [\"$longPollingId\", 30]\n" +
-                                "    }\n" +
-                                "]"
-                    ).responseObject<Array<LongPollingResponse>>()
-                val response = request.third.get()
-                runBlocking {
-                    response.forEach {
-                        eventHandlers.forEach { handler -> handler.receive(it) }
-                        it.result?.forEach { service ->
-                            ActorRegistry.actors.forEach { actor ->
-                                actor.send(service)
+                try {
+                    if (longPollingId == null) {
+                        log.warn("Long polling ID is null. Skipping...")
+                        Thread.sleep(1000L)
+                        continue
+                    }
+                    val response = Client.fuelManager.post(url)
+                        .jsonBody(
+                            "[\n" +
+                                    "    {\n" +
+                                    "        \"jsonrpc\":\"2.0\",\n" +
+                                    "        \"method\":\"RE/longPoll\",\n" +
+                                    "        \"params\": [\"$longPollingId\", 30]\n" +
+                                    "    }\n" +
+                                    "]"
+                        ).responseObject<Array<LongPollingResponse>>()
+                        .third.get()
+                    runBlocking {
+                        response.forEach {
+                            it.result?.forEach { service ->
+                                ActorRegistry.actors.forEach { actor ->
+                                    actor.send(service)
+                                }
                             }
                         }
                     }
+                } catch (e: RuntimeException) {
+                    log.warn("Long polling failed", e)
                 }
             }
         }
