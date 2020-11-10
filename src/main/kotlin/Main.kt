@@ -6,6 +6,8 @@ import bsh.client.Client
 import bsh.client.LongPollingClient
 import com.influxdb.client.domain.WritePrecision
 import influxdb.InfluxClient
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import smarthome.ConfigHelper
@@ -52,7 +54,7 @@ fun longpolling() {
     LongPollingClient.startPolling()
 }
 
-fun setupActor() = runBlocking {
+fun setupActor() = GlobalScope.launch {
     DeviceRegistry.devices
         .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
         .forEach { d ->
