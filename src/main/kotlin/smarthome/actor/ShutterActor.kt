@@ -45,6 +45,9 @@ fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
             }
         } catch (e: RuntimeException) {
             log.warn("Exception processing message", e)
+        } catch (e: Error) {
+            log.error("Error received", e)
+            throw e
         }
     }
 }

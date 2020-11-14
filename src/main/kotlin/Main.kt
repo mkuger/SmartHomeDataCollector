@@ -6,6 +6,7 @@ import bsh.client.Client
 import bsh.client.LongPollingClient
 import com.influxdb.client.domain.WritePrecision
 import influxdb.InfluxClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
@@ -16,7 +17,6 @@ import smarthome.convertBoschSmartHomeToInflux
 import java.time.Instant
 
 fun main(args: Array<String>) {
-
     val log = KotlinLogging.logger {}
     log.info("Starting Smart Home Data Collector")
 
@@ -53,7 +53,7 @@ fun longpolling() {
     LongPollingClient.startPolling()
 }
 
-fun setupActor() = GlobalScope.launch {
+fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
     DeviceRegistry.devices
         .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
         .forEach { d ->

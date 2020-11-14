@@ -5,6 +5,7 @@ import bsh.jsonrpc.SubscribeResponse
 import bsh.jsonrpc.UnsubscribeResponse
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.jackson.responseObject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import smarthome.actor.ActorRegistry
@@ -82,7 +83,10 @@ object LongPollingClient {
                                     "]"
                         ).responseObject<Array<LongPollingResponse>>()
                         .third.get()
-                    runBlocking {
+                    runBlocking(Dispatchers.Default) {
+                        if (response.isNotEmpty()) {
+                            log.debug("${response.size} messages received")
+                        }
                         response.forEach {
                             it.result?.forEach { service ->
                                 ActorRegistry.actors.forEach { actor ->
