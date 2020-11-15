@@ -31,3 +31,21 @@ jobs:
         path: |
           build/distributions/*.zip
         
+  publish:
+      runs-on: ubuntu-latest
+
+      steps:
+        - uses: actions/checkout@v1
+
+        - name: Upload to Bintray
+          uses: bpicode/github-action-upload-bintray@master
+          with:
+            file: ./build/distributions/SmartHomeDataCollector-0.2.x.zip
+            api_user: mikuger
+            api_key: ${{ secrets.BINTRAY_API_KEY }} # An API key can be obtained from the user profile page.
+            repository_user: mikuger
+            repository: SmartHomeDataCollector
+            package: example-package
+            version: '0.2.5'
+            publish: 1
+            calculate_metadata: true # Schedule metadata calculation after upload
