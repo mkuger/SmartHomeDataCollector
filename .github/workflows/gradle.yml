@@ -30,10 +30,6 @@ jobs:
         name: distributions
         path: |
           build/distributions/*.zip
-    - uses: actions/upload-artifact@master
-      with:
-        name: SmartHomeDataCollector-0.2.x.zip
-        path: build/distributions/SmartHomeDataCollector-0.2.x.zip
         
   publish:
       runs-on: ubuntu-latest
@@ -43,8 +39,8 @@ jobs:
 
         - uses: actions/download-artifact@master
           with:
-            name: SmartHomeDataCollector-0.2.x.zip
-            path: build/distributions/SmartHomeDataCollector-0.2.x.zip
+            name: distributions
+            path: build/distributions
 
         - name: Upload to Bintray
           uses: bpicode/github-action-upload-bintray@master
