@@ -12,7 +12,6 @@ import java.security.KeyStore
 import javax.net.ssl.*
 
 object Client {
-
     val fuelManager: FuelManager
 
     init {

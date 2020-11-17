@@ -1,51 +1,34 @@
+import bsh.BSHPoller
 import bsh.DeviceRegistry
-import bsh.EnrichedDevice
 import bsh.RoomRegistry
 import bsh.ServiceRegistry
 import bsh.client.Client
 import bsh.client.LongPollingClient
-import com.influxdb.client.domain.WritePrecision
-import influxdb.InfluxClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import mu.KotlinLogging
-import smarthome.ConfigHelper
+import netatmo.NetatmoPoller
 import smarthome.actor.ActorRegistry
 import smarthome.actor.shutterActor
-import smarthome.convertBoschSmartHomeToInflux
-import java.time.Instant
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 fun main(args: Array<String>) {
     val log = KotlinLogging.logger {}
     log.info("Starting Smart Home Data Collector")
 
+    val executor = Executors.newSingleThreadScheduledExecutor()
+    executor.scheduleAtFixedRate(NetatmoPoller, 0, 10, TimeUnit.MINUTES)
+    log.info("Netatmo Poller registered")
     RoomRegistry.rooms = Client.rooms()
     DeviceRegistry.devices = Client.devices()
     ServiceRegistry.services = Client.services()
 
     longpolling()
     setupActor()
-    while (true) {
-        val now = Instant.now()
 
-        RoomRegistry.rooms = Client.rooms()
-        DeviceRegistry.devices = Client.devices()
-        ServiceRegistry.services = Client.services()
-
-        val points = DeviceRegistry.devices
-            .map { d ->
-                val services = ServiceRegistry.servicesByDevice(d)
-                EnrichedDevice(d, services)
-            }
-            .mapNotNull { d -> convertBoschSmartHomeToInflux(d) }
-            .flatten()
-            .map { p -> p.time(now, WritePrecision.S) }
-
-        InfluxClient.push(points)
-        log.info("${points.size} points sent")
-        Thread.sleep(1000 * 60 * ConfigHelper.config.smarthome.interval)
-    }
+    executor.scheduleAtFixedRate(BSHPoller, 0, 5, TimeUnit.MINUTES)
 }
 
 fun longpolling() {
@@ -56,7 +39,5 @@ fun longpolling() {
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
     DeviceRegistry.devices
         .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
-        .forEach { d ->
-            ActorRegistry.add(shutterActor(d))
-        }
+        .forEach { d -> ActorRegistry.add(shutterActor(d)) }
 }

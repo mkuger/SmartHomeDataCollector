@@ -12,7 +12,6 @@ import smarthome.actor.ActorRegistry
 import kotlin.concurrent.thread
 
 object LongPollingClient {
-
     private val log = KotlinLogging.logger {}
     private const val url = "/remote/json-rpc"
 
@@ -83,19 +82,22 @@ object LongPollingClient {
                                     "]"
                         ).responseObject<Array<LongPollingResponse>>()
                         .third.get()
-                    runBlocking(Dispatchers.Default) {
-                        if (response.isNotEmpty()) {
-                            log.debug("${response.size} messages received")
-                        }
-                        response.forEach {
-                            it.result?.forEach { service ->
-                                ActorRegistry.actors.forEach { actor ->
-                                    actor.send(service)
-                                }
+                    if (response.isNotEmpty()) {
+                        log.debug("${response[0].result!!.size} messages received:")
+                        response.forEach { r ->
+                            r.result?.forEach { s ->
+                                log.debug("\t${s.state!!::class}")
                             }
                         }
                     }
-                } catch (e: RuntimeException) {
+                    runBlocking(Dispatchers.Default) {
+                        response.forEach {
+                            it.result?.forEach { s ->
+                                ActorRegistry.toAll(s)
+                            }
+                        }
+                    }
+                } catch (e: Throwable) {
                     log.warn("Long polling failed", e)
                 }
             }

@@ -10,4 +10,10 @@ object ActorRegistry {
     fun add(actor: SendChannel<Service>) {
         actors.add(actor)
     }
+
+    suspend fun toAll(service: Service) {
+        actors.forEach {
+            it.send(service)
+        }
+    }
 }
