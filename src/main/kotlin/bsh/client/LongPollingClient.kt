@@ -17,7 +17,7 @@ fun main() {
     LongPollingClient.subscribe()
     LongPollingClient.startPolling()
     Thread.sleep(5000)
-    LongPollingClient.longPollingUnsubscribe()
+    LongPollingClient.unsubscribe()
 }
 
 object LongPollingClient {
@@ -30,7 +30,7 @@ object LongPollingClient {
         Runtime.getRuntime().addShutdownHook(object : Thread() {
             override fun run() {
                 log.info("Received shutdown hook. Unsubscribing from long polling.")
-                longPollingUnsubscribe()
+                unsubscribe()
             }
         })
     }
@@ -44,7 +44,7 @@ object LongPollingClient {
         log.info("Subscribed. Id: ${longPollingId}")
     }
 
-    fun longPollingUnsubscribe() {
+    fun unsubscribe() {
         if (longPollingId == null) {
             log.warn("Skipping unsubscribe, currently not subscribed")
             return
@@ -70,12 +70,19 @@ object LongPollingClient {
                     val response = Client.fuelManager.post(url)
                             .jsonBody(requestBody).responseObject<Array<LongPollingResponse>>()
                             .third.get()
-                    if (response.isNotEmpty()) {
-                        log.debug("${response[0].result?.size} message(s) received:")
-                        response.forEach { r ->
-                            r.result?.forEach { s ->
-                                log.debug("\t${s.state?.javaClass}")
-                            }
+                    if (response.isEmpty()) {
+                        continue
+                    }
+                    if (response[0].error != null) {
+                        log.warn("Error during longpoll. Re-subscribing...")
+                        unsubscribe()
+                        subscribe()
+                        continue
+                    }
+                    log.debug("${response[0].result?.size} message(s) received:")
+                    response.forEach { r ->
+                        r.result?.forEach { s ->
+                            log.debug("\t${s.state?.javaClass}")
                         }
                     }
                     val exceptionHandler = CoroutineExceptionHandler { _, throwable -> log.warn("Could not handle long polling response", throwable) }
