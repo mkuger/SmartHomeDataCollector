@@ -38,6 +38,6 @@ fun longpolling() {
 
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
     DeviceRegistry.devices
-        .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
-        .forEach { d -> ActorRegistry.add(shutterActor(d)) }
+            .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
+            .forEach { d -> ActorRegistry.add(shutterActor(d)) }
 }

@@ -1,15 +1,24 @@
 package bsh.client
 
+import GlobalConfig
 import bsh.jsonrpc.LongPollingResponse
 import bsh.jsonrpc.SubscribeResponse
 import bsh.jsonrpc.UnsubscribeResponse
 import com.github.kittinunf.fuel.core.extensions.jsonBody
 import com.github.kittinunf.fuel.jackson.responseObject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import smarthome.actor.ActorRegistry
 import kotlin.concurrent.thread
+
+fun main() {
+    LongPollingClient.subscribe()
+    LongPollingClient.startPolling()
+    Thread.sleep(5000)
+    LongPollingClient.longPollingUnsubscribe()
+}
 
 object LongPollingClient {
     private val log = KotlinLogging.logger {}
@@ -27,17 +36,10 @@ object LongPollingClient {
     }
 
     fun subscribe() {
+        val requestBody = GlobalConfig.jsonMapper.writeValueAsString(listOf(Request.subscribe()))
         val request = Client.fuelManager.post(url)
-            .jsonBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"jsonrpc\":\"2.0\",\n" +
-                        "        \"method\":\"RE/subscribe\",\n" +
-                        "        \"params\": [\"com/bosch/sh/remote/*\", null]\n" +
-                        "    }\n" +
-                        "]"
-            )
-            .responseObject<Array<SubscribeResponse>>()
+                .jsonBody(requestBody)
+                .responseObject<Array<SubscribeResponse>>()
         longPollingId = request.third.get()[0].result
         log.info("Subscribed. Id: ${longPollingId}")
     }
@@ -47,23 +49,17 @@ object LongPollingClient {
             log.warn("Skipping unsubscribe, currently not subscribed")
             return
         }
+        val requestBody = GlobalConfig.jsonMapper.writeValueAsString(listOf(Request.unsubscribe(longPollingId)))
         val response = Client.fuelManager.post(url)
-            .jsonBody(
-                "[\n" +
-                        "    {\n" +
-                        "        \"jsonrpc\":\"2.0\",\n" +
-                        "        \"method\":\"RE/unsubscribe\",\n" +
-                        "        \"params\": [\"$longPollingId\"] " +
-                        "    }\n" +
-                        "]"
-            )
-            .responseObject<Array<UnsubscribeResponse>>()
+                .jsonBody(requestBody)
+                .responseObject<Array<UnsubscribeResponse>>()
         log.info("Unsubscribe response: ${response.second.statusCode} : ${response.second.responseMessage}")
         longPollingId = null
     }
 
     fun startPolling() {
         thread(start = true, isDaemon = true) {
+            val requestBody = GlobalConfig.jsonMapper.writeValueAsString(listOf(Request.longpolling(longPollingId)))
             while (true) {
                 try {
                     if (longPollingId == null) {
@@ -72,25 +68,18 @@ object LongPollingClient {
                         continue
                     }
                     val response = Client.fuelManager.post(url)
-                        .jsonBody(
-                            "[\n" +
-                                    "    {\n" +
-                                    "        \"jsonrpc\":\"2.0\",\n" +
-                                    "        \"method\":\"RE/longPoll\",\n" +
-                                    "        \"params\": [\"$longPollingId\", 30]\n" +
-                                    "    }\n" +
-                                    "]"
-                        ).responseObject<Array<LongPollingResponse>>()
-                        .third.get()
+                            .jsonBody(requestBody).responseObject<Array<LongPollingResponse>>()
+                            .third.get()
                     if (response.isNotEmpty()) {
-                        log.debug("${response[0].result!!.size} messages received:")
+                        log.debug("${response[0].result?.size} message(s) received:")
                         response.forEach { r ->
                             r.result?.forEach { s ->
-                                log.debug("\t${s.state!!::class}")
+                                log.debug("\t${s.state?.javaClass}")
                             }
                         }
                     }
-                    runBlocking(Dispatchers.Default) {
+                    val exceptionHandler = CoroutineExceptionHandler { _, throwable -> log.warn("Could not handle long polling response", throwable) }
+                    GlobalScope.launch(context = exceptionHandler) {
                         response.forEach {
                             it.result?.forEach { s ->
                                 ActorRegistry.toAll(s)

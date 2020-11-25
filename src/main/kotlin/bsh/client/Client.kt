@@ -5,13 +5,17 @@ import bsh.Device
 import bsh.Room
 import bsh.Service
 import com.github.kittinunf.fuel.core.FuelManager
+import com.github.kittinunf.fuel.core.Request
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.jackson.responseObject
+import mu.KotlinLogging
 import smarthome.ConfigHelper
 import java.nio.file.Files
 import java.security.KeyStore
 import javax.net.ssl.*
 
 object Client {
+    private val log = KotlinLogging.logger {}
     val fuelManager: FuelManager
 
     init {
@@ -41,34 +45,40 @@ object Client {
             basePath = "https://${config.ip}:${config.port}"
             // 40 Seconds. According to docs, BSH uses 30s for long polling
             timeoutReadInMillisecond = 1000 * 40
+            addResponseInterceptor {
+                { _: Request, response: Response ->
+                    log.debug { String(response.data) }
+                    response
+                }
+            }
         }
     }
 
     fun rooms(): Array<Room> {
         val url = "/smarthome/rooms"
         val request = fuelManager.get(url)
-            .responseObject<Array<Room>>(GlobalConfig.jsonMapper)
+                .responseObject<Array<Room>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun devices(): Array<Device> {
         val url = "/smarthome/devices"
         val request = fuelManager.get(url)
-            .responseObject<Array<Device>>(GlobalConfig.jsonMapper)
+                .responseObject<Array<Device>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun services(): Array<Service> {
         val url = "/smarthome/services"
         val request = fuelManager.get(url)
-            .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
+                .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 
     fun servicesByDevice(device: String): Array<Service> {
         val url = "/smarthome/devices/${device}/services"
         val request = fuelManager.get(url)
-            .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
+                .responseObject<Array<Service>>(GlobalConfig.jsonMapper)
         return request.third.get()
     }
 }

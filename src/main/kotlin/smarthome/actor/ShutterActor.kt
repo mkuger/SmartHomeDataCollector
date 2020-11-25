@@ -2,7 +2,6 @@ package smarthome.actor
 
 import bsh.Device
 import bsh.RoomRegistry
-import bsh.Service
 import bsh.ShutterContactState
 import grafana.Annotation
 import grafana.GrafanaClient
@@ -11,7 +10,7 @@ import kotlinx.coroutines.channels.actor
 import mu.KotlinLogging
 import java.time.Instant
 
-fun CoroutineScope.shutterActor(device: Device) = actor<Service> {
+fun CoroutineScope.shutterActor(device: Device): ServiceActor = actor {
     val log = KotlinLogging.logger {}
     log.info("ShutterActor created: ${device.name}")
     var currentState = ""

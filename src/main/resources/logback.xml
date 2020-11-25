@@ -1,16 +1,15 @@
 <configuration>
     <property name="LOG_DIR" value="/var/log/smart-home"/>
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <charset>UTF-8</charset>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_DIR}/smart-home.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- daily rollover -->
             <fileNamePattern>smart-home.%d{yyyy-MM-dd}.gz</fileNamePattern>
 
-            <!-- keep 30 days' worth of history capped at 100MB total size -->
+            <!-- keep 30 days' worth of history capped at 300MB total size -->
             <maxHistory>30</maxHistory>
-            <totalSizeCap>100MB</totalSizeCap>
+            <totalSizeCap>300MB</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>%d [%thread] %-5level %logger{35} - %msg%n</pattern>
