@@ -59,7 +59,6 @@ object LongPollingClient {
 
     fun startPolling() {
         thread(start = true, isDaemon = true) {
-            val requestBody = GlobalConfig.jsonMapper.writeValueAsString(listOf(Request.longpolling(longPollingId)))
             while (true) {
                 try {
                     if (longPollingId == null) {
@@ -67,6 +66,7 @@ object LongPollingClient {
                         Thread.sleep(1000L)
                         continue
                     }
+                    val requestBody = GlobalConfig.jsonMapper.writeValueAsString(listOf(Request.longpolling(longPollingId)))
                     val response = Client.fuelManager.post(url)
                             .jsonBody(requestBody).responseObject<Array<LongPollingResponse>>()
                             .third.get()
