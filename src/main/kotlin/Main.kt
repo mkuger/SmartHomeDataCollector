@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 import mu.KotlinLogging
 import netatmo.NetatmoPoller
 import smarthome.actor.ActorRegistry
-import smarthome.actor.shutterActor
+import smarthome.actor.ShutterActor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -39,5 +39,5 @@ fun longpolling() {
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
     DeviceRegistry.devices
             .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
-            .forEach { d -> ActorRegistry.add(shutterActor(d)) }
+            .forEach { d -> ActorRegistry.add(ShutterActor.instance(d)) }
 }
