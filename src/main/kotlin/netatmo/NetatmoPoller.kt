@@ -13,8 +13,14 @@ object NetatmoPoller : Runnable {
             log.info("Starting Netatmo Query")
             val station = Client.queryStation()
             InfluxClient.push(station.dashboardData, config.influxBucket)
-            for (module in station.modules)
-                InfluxClient.push(module.measurement, config.influxBucket)
+            for (module in station.modules) {
+                val measurement = module.measurement
+                if (measurement == null) {
+                    log.info("No measurement for module $module")
+                    continue
+                }
+                InfluxClient.push(measurement, config.influxBucket)
+            }
             log.info("Finished Netatmo Query")
         } catch (e: Throwable) {
             log.warn("Exception while polling Netatmo", e)

@@ -17,7 +17,7 @@ data class Station(
 
 data class Module(
     @JsonProperty("module_name") var name: String,
-    @JsonProperty("dashboard_data") var measurement: SatelliteMeasurement,
+    @JsonProperty("dashboard_data") var measurement: SatelliteMeasurement?,
     var type: String,
 )
 
