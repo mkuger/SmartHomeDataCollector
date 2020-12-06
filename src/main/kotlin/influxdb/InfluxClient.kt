@@ -8,6 +8,7 @@ import com.influxdb.client.write.events.WriteErrorEvent
 import com.influxdb.client.write.events.WriteRetriableErrorEvent
 import mu.KotlinLogging
 import smarthome.ConfigHelper
+import smarthome.SmartHomeSolution
 
 object InfluxClient {
     private val log = KotlinLogging.logger {}
@@ -35,15 +36,21 @@ object InfluxClient {
         }
     }
 
-    fun push(points: List<Point>, bucket: String) {
-        log.info("Pushing ${points.size} points to Influx. Bucket: $bucket")
+    fun push(point: Point, solution: SmartHomeSolution) {
+        log.info("Pushing point to Influx. Bucket: ${solution.bucket}")
 
-        writeApi.writePoints(bucket, config.org, points)
+        writeApi.writePoint(solution.bucket, config.org, point)
     }
 
-    fun push(pojo: Any, bucket: String) {
-        log.info("Pushing POJO measurement ${pojo.javaClass.simpleName} to Influx. Bucket: $bucket")
+    fun push(points: List<Point>, solution: SmartHomeSolution) {
+        log.info("Pushing ${points.size} points to Influx. Bucket: ${solution.bucket}")
 
-        writeApi.writeMeasurement(bucket, config.org, WritePrecision.S, pojo)
+        writeApi.writePoints(solution.bucket, config.org, points)
+    }
+
+    fun push(pojo: Any, solution: SmartHomeSolution) {
+        log.info("Pushing POJO measurement ${pojo.javaClass.simpleName} to Influx. Bucket: ${solution.bucket}")
+
+        writeApi.writeMeasurement(solution.bucket, config.org, WritePrecision.S, pojo)
     }
 }

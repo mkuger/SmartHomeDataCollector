@@ -15,6 +15,10 @@ class ShutterActor private constructor(private val device: Device) : ServiceHand
     private var currentState = ""
     private var timestamp = Instant.MIN
 
+    init {
+        log.info("${device.id} created")
+    }
+
     override fun handle(service: Service) {
         if (service.deviceId != device.id)
             return

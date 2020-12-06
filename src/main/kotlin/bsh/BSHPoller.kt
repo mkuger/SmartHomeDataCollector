@@ -4,7 +4,7 @@ import bsh.client.Client
 import com.influxdb.client.domain.WritePrecision
 import influxdb.InfluxClient
 import mu.KotlinLogging
-import smarthome.ConfigHelper
+import smarthome.SmartHomeSolution
 import smarthome.convertBoschSmartHomeToInflux
 import java.time.Instant
 import java.util.*
@@ -28,7 +28,7 @@ object BSHPoller : TimerTask() {
             .flatten()
             .map { p -> p.time(now, WritePrecision.S) }
 
-        InfluxClient.push(points, ConfigHelper.config.bsh.influxBucket)
+        InfluxClient.push(points, SmartHomeSolution.BoschSmartHome)
         log.info("${points.size} points sent")
     }
 }

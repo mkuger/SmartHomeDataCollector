@@ -8,15 +8,11 @@ fun convertBoschSmartHomeToInflux(device: EnrichedDevice): List<Point>? {
     device.services.forEach { s ->
         when (s.state) {
             is ValveTappetState -> {
-                val point = Point.measurement("valve")
-                    .addTag("device", device.device.name)
-                    .addField("valve", (s.state as ValveTappetState).position)
+                val point = BSHPointFactory.valvePoint(device.device, s.state as ValveTappetState)
                 result.add(point)
             }
             is TemperatureLevelState -> {
-                val point = Point.measurement("temperature")
-                    .addTag("device", device.device.name)
-                    .addField("temperature", (s.state as TemperatureLevelState).temperature)
+                val point = BSHPointFactory.temperaturePoint(device.device, s.state as TemperatureLevelState)
                 result.add(point)
             }
             is ShutterContactState -> {

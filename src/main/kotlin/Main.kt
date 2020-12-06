@@ -11,6 +11,8 @@ import mu.KotlinLogging
 import netatmo.NetatmoPoller
 import smarthome.actor.ActorRegistry
 import smarthome.actor.ShutterActor
+import smarthome.actor.TemperatureLevelActor
+import smarthome.actor.ValveTappetActor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -38,6 +40,18 @@ fun longpolling() {
 
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
     DeviceRegistry.devices
-            .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
-            .forEach { d -> ActorRegistry.add(ShutterActor.instance(d)) }
+        .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
+        .forEach { d -> ActorRegistry.add(ShutterActor.instance(d)) }
+
+    DeviceRegistry.devices
+        .forEach { d ->
+            when {
+                d.deviceServiceIds.contains("ShutterContact") ->
+                    ActorRegistry.add(ShutterActor.instance(d))
+                d.deviceServiceIds.contains("TemperatureLevel") ->
+                    ActorRegistry.add(TemperatureLevelActor.instance(d))
+                d.deviceServiceIds.contains("TemperatureLevel") ->
+                    ActorRegistry.add(ValveTappetActor.instance(d))
+            }
+        }
 }
