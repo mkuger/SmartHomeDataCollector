@@ -39,7 +39,7 @@ fun longpolling() {
 }
 
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
-buf    DeviceRegistry.devices
+    DeviceRegistry.devices
         .forEach { d ->
             for (serviceId in d.deviceServiceIds) {
                 when (serviceId) {
