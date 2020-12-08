@@ -39,19 +39,20 @@ fun longpolling() {
 }
 
 fun setupActor() = GlobalScope.launch(Dispatchers.Default) {
-    DeviceRegistry.devices
-        .filter { d -> d.deviceServiceIds.contains("ShutterContact") }
-        .forEach { d -> ActorRegistry.add(ShutterActor.instance(d)) }
-
-    DeviceRegistry.devices
+buf    DeviceRegistry.devices
         .forEach { d ->
-            when {
-                d.deviceServiceIds.contains("ShutterContact") ->
-                    ActorRegistry.add(ShutterActor.instance(d))
-                d.deviceServiceIds.contains("TemperatureLevel") ->
-                    ActorRegistry.add(TemperatureLevelActor.instance(d))
-                d.deviceServiceIds.contains("TemperatureLevel") ->
-                    ActorRegistry.add(ValveTappetActor.instance(d))
+            for (serviceId in d.deviceServiceIds) {
+                when (serviceId) {
+                    "ShutterContact" -> {
+                        ActorRegistry.add(ShutterActor.instance(d))
+                    }
+                    "TemperatureLevel" -> {
+                        ActorRegistry.add(TemperatureLevelActor.instance(d))
+                    }
+                    "ValveTappet" -> {
+                        ActorRegistry.add(ValveTappetActor.instance(d))
+                    }
+                }
             }
         }
 }
