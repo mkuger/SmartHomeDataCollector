@@ -5,17 +5,17 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 
 data class EnrichedDevice(val device: Device, val services: Collection<Service>)
 
-data class Room(var id: String = "", var name: String = "")
+data class Room(val id: String = "", val name: String = "")
 
 data class Device(
-    var name: String = "",
-    var id: String = "",
-    var roomId: String = "",
-    var status: String = "",
-    var deviceServiceIds: Array<String> = emptyArray()
+    val name: String = "",
+    val id: String = "",
+    val roomId: String = "",
+    val status: String = "",
+    val deviceServiceIds: Array<String> = emptyArray()
 )
 
-data class Service(var id: String, var state: ServiceState?, var deviceId: String)
+data class Service(val id: String, val state: ServiceState?, val deviceId: String)
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -46,20 +46,20 @@ abstract class ServiceState
 
 abstract class MeasuredServiceState : ServiceState()
 
-data class ValveTappetState(var position: Int) : MeasuredServiceState()
+data class ValveTappetState(val position: Int) : MeasuredServiceState()
 
-data class TemperatureLevelState(var temperature: Double) : MeasuredServiceState()
-data class TemperatureOffsetState(var offset: Double, var stepSize: Double) : ServiceState()
-data class ChildLockState(var childLock: String) : ServiceState()
-data class ShutterContactState(var value: String) : MeasuredServiceState()
+data class TemperatureLevelState(val temperature: Double) : MeasuredServiceState()
+data class TemperatureOffsetState(val offset: Double, val stepSize: Double) : ServiceState()
+data class ChildLockState(val childLock: String) : ServiceState()
+data class ShutterContactState(val value: String) : MeasuredServiceState()
 data class ClimateControlState(
-    var setpointTemperature: Double,
-    var operationMode: String,
-    var low: Boolean,
-    var boostMode: Boolean,
-    var summerMode: Boolean,
-    var setpointTemperatureForLevelEco: Double,
-    var setpointTemperatureForLevelComfort: Double
+    val setpointTemperature: Double,
+    val operationMode: String,
+    val low: Boolean,
+    val boostMode: Boolean,
+    val summerMode: Boolean,
+    val setpointTemperatureForLevelEco: Double,
+    val setpointTemperatureForLevelComfort: Double
 ) : MeasuredServiceState()
 
 class LinkingState : ServiceState()

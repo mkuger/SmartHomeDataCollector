@@ -2,7 +2,7 @@ package bsh.jsonrpc
 
 import bsh.Service
 
-data class Error(var code: Double, var message: String)
-data class SubscribeResponse(var result: String?, var error: Error?)
-data class UnsubscribeResponse(var result: String?, var error: Error?)
-data class LongPollingResponse(var result: Array<Service>?, var error: Error?)
+data class Error(val code: Double, val message: String)
+data class SubscribeResponse(val result: String?, val error: Error?)
+data class UnsubscribeResponse(val result: String?, val error: Error?)
+data class LongPollingResponse(val result: Array<Service>?, val error: Error?)
