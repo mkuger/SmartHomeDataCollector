@@ -1,5 +1,6 @@
 import netatmo.Module
 import netatmo.RainMeasurement
+import com.fasterxml.jackson.module.kotlin.readValue
 import netatmo.Station
 import netatmo.WindMeasurement
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -149,7 +150,7 @@ class StationTest {
         }
         }
 """
-        val station = GlobalConfig.jsonMapper.readValue(json, Station::class.java)
+        val station = GlobalConfig.jsonMapper.readValue<Station>(json)
         assertEquals(681.0, station.dashboardData.co2)
         val rainMeasurement = RainMeasurement(0.0, Instant.ofEpochSecond(1605176869))
         val rainModule = Module("Regenmesser", rainMeasurement, "NAModule3")
