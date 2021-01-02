@@ -24,6 +24,20 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Docker Build
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: user/app:latest
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: distributions
+        path: |
+          build/distributions/*.zip
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
