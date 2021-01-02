@@ -39,7 +39,8 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: mkuger/smarthome:latest
+        registry: ghcr.io
+        tags: mkuger/smarthomedatacollector:latest
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
