@@ -7,7 +7,7 @@ import smarthome.SmartHomeSolution
 
 object NetatmoPoller : Runnable {
     private val log = KotlinLogging.logger {}
-    private val config = ConfigHelper.config.netatmo
+    private val config = NetatmoSubsystem.config!!
 
     override fun run() {
         try {

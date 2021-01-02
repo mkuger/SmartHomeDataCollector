@@ -1,6 +1,9 @@
 package smarthome
 
+import bsh.BSHSubsystem
+import netatmo.NetatmoSubsystem
+
 enum class SmartHomeSolution(val bucket: String) {
-    BoschSmartHome(ConfigHelper.config.bsh.influxBucket),
-    Netatmo(ConfigHelper.config.netatmo.influxBucket)
+    BoschSmartHome(BSHSubsystem.config!!.influxBucket),
+    Netatmo(NetatmoSubsystem.config!!.influxBucket)
 }

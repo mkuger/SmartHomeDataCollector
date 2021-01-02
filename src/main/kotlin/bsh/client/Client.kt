@@ -1,6 +1,7 @@
 package bsh.client
 
 import GlobalConfig
+import bsh.BSHSubsystem
 import bsh.Device
 import bsh.Room
 import bsh.Service
@@ -19,7 +20,7 @@ object Client {
     val fuelManager: FuelManager
 
     init {
-        val config = ConfigHelper.config.bsh
+        val config = BSHSubsystem.config!!
         val truststore = KeyStore.getInstance("JKS")
         truststore.load(javaClass.classLoader.getResourceAsStream("bsh.jks"), "foobar".toCharArray())
 

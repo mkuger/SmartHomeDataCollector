@@ -26,7 +26,7 @@ object Client {
     }
 
     private fun login(): AuthResponse {
-        val config = ConfigHelper.config.netatmo
+        val config = NetatmoSubsystem.config!!
         val url = "oauth2/token"
         val parameters = listOf(
             Headers.CONTENT_TYPE to "application/x-www-form-urlencoded;charset=UTF-8",
@@ -43,7 +43,7 @@ object Client {
     }
 
     private fun refreshToken(): AuthResponse {
-        val config = ConfigHelper.config.netatmo
+        val config = NetatmoSubsystem.config!!
         val url = "oauth2/token"
         val parameters = listOf(
             Headers.CONTENT_TYPE to "application/x-www-form-urlencoded;charset=UTF-8",
