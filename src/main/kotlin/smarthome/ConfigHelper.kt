@@ -31,7 +31,7 @@ object ConfigHelper {
         return ConfigLoader.Builder()
             .addSource(
                 EnvironmentVariablesPropertySource(
-                    useUnderscoresAsSeparator = false,
+                    useUnderscoresAsSeparator = true,
                     allowUppercaseNames = true
                 )
             )
