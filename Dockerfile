@@ -1,6 +1,5 @@
 FROM openjdk:17-slim
 MAINTAINER michael@mikuger.de
-
-COPY ./build/libs/SmartHomeDataCollector-0.2.x.jar /home/javarun/app.jar
-
-ENTRYPOINT ["java", "-jar", "/home/javarun/app.jar"]
+COPY config.yaml root/.smart-home/config.yaml
+ADD build/distributions/SmartHomeDataCollector-0.2.x.tar .
+CMD ["sh",  "SmartHomeDataCollector-0.2.x/bin/SmartHomeDataCollector"]

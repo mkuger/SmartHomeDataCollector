@@ -20,14 +20,14 @@ object BSHSubsystem {
     var config: BSH? = null
 
     fun start(executor: ScheduledExecutorService): Boolean {
-        val configLoader = ConfigHelper.loadConfig<BSH>()
+        val configLoader = ConfigHelper.loadConfig<BSHConfig>()
 
         if (configLoader.isInvalid()) {
             log.warn("Invalid config: ${configLoader.mapInvalid { it.description() }}")
             return false
         }
 
-        config = configLoader.getUnsafe()
+        config = configLoader.getUnsafe().bsh
         log.info("Config loaded")
 
         RoomRegistry.rooms = Client.rooms()

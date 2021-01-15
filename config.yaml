@@ -1,0 +1,23 @@
+smarthome:
+  interval: 1
+
+grafana:
+  apiKey: GRAFANA_TOKEN
+  url: https://grafana.mikuger.de
+bsh:
+  clientCertPassword: CERT_PW
+  ip: 192.168.178.55
+  port: 8444
+  influxBucket: smart-home
+
+influx:
+  url: INFLUX_URL
+  org: home
+  token: INFLUX_TOKEN
+
+netatmo:
+  user: NETATMO_USER
+  password: NETATMO_PW
+  clientID: NETATMO_CLIENTID
+  clientSecret: NETATMO_CLIENTSECRET
+  influxBucket: smart-home-netatmo

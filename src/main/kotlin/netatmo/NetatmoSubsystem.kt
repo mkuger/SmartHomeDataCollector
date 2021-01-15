@@ -12,12 +12,12 @@ object NetatmoSubsystem {
     var config: Netatmo? = null
 
     fun start(executor: ScheduledExecutorService): Boolean {
-        val configLoader = ConfigHelper.loadConfig<Netatmo>()
+        val configLoader = ConfigHelper.loadConfig<NetatmoConfig>()
         if (configLoader.isInvalid()) {
             BSHSubsystem.log.warn("Invalid config: ${configLoader.mapInvalid { it.description() }}")
             return false
         }
-        config = configLoader.getUnsafe()
+        config = configLoader.getUnsafe().netatmo
         log.info("Config loaded")
 
         executor.scheduleAtFixedRate(NetatmoPoller, 0, 10, TimeUnit.MINUTES)
