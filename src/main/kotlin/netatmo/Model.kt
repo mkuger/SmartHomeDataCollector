@@ -41,7 +41,6 @@ sealed class SatelliteMeasurement : Measurement()
 data class OutdoorWeatherMeasurement(
     @Column @JsonProperty("Temperature") val temperature: Double,
     @Column @JsonProperty("Humidity") val humidity: Double,
-    @Column @JsonProperty("temp_trend") val tempTrend: String,
     @Column(timestamp = true) @JsonProperty("time_utc") override val timestamp: Instant
 ) : SatelliteMeasurement() {
     @Column(tag = true)
