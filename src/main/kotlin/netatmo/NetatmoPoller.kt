@@ -2,12 +2,10 @@ package netatmo
 
 import influxdb.InfluxClient
 import mu.KotlinLogging
-import smarthome.ConfigHelper
 import smarthome.SmartHomeSolution
 
 object NetatmoPoller : Runnable {
     private val log = KotlinLogging.logger {}
-    private val config = NetatmoSubsystem.config!!
 
     override fun run() {
         try {
