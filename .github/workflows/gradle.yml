@@ -16,6 +16,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to GitHub Container Registry
@@ -38,9 +40,12 @@ jobs:
       with:
         context: .
         file: ./Dockerfile
+        platforms: linux/amd64,linux/arm64
         push: true
         registry: ghcr.io
-        tags: ghcr.io/mkuger/smarthomedatacollector:latest
+        tags: |
+          ghcr.io/mkuger/smarthomedatacollector:latest
+          ghcr.io/mkuger/smarthomedatacollector:${{ github.run_id }}
     - name: Archive build artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -49,9 +54,3 @@ jobs:
           build/distributions/*.zip
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
-    - name: Archive build artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: distributions
-        path: |
-          build/distributions/*.zip
